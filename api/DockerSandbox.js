@@ -136,6 +136,7 @@ DockerSandbox.prototype.execute = function(success){
     var exec = require('child_process').exec;
     var fs = require('fs');
     var myC = 0; //variable to enforce the timeout_value
+    const checkTime = 250; //milliseconds before you check
     var sandbox = this;
 
     //this statement is what is executed
@@ -155,7 +156,7 @@ DockerSandbox.prototype.execute = function(success){
         //Displaying the checking message after 1 second interval, testing purposes only
         //console.log("Checking " + sandbox.path+sandbox.folder + ": for completion: " + myC);
 
-        myC = myC + 1;
+        myC = myC + (checkTime / 1000);
 		
         fs.readFile(sandbox.path + sandbox.folder + '/completed', 'utf8', function(err, data) {
             
@@ -227,7 +228,7 @@ DockerSandbox.prototype.execute = function(success){
             clearInterval(intid);
         });
 
-    }, 1000);
+    }, checkTime);
 }
 
 

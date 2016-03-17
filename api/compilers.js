@@ -17,7 +17,8 @@
 */
 
 exports.compilerInfo = [
-	{ 
+	{
+		langID: 0, 
 		language: 'Java',
 		compiler: 'javac', 
 		compileTarget: '*.java', 
@@ -25,6 +26,7 @@ exports.compilerInfo = [
 		runtimeArgs: ''
 	},
 	{
+		langID: 1,
 		language: 'Python',
 		compiler: 'python',
 		compileTarget: 'file.py',
