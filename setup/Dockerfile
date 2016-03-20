@@ -10,6 +10,10 @@ MAINTAINER MICHAEL LUO
 RUN echo "deb http://archive.ubuntu.com/ubuntu trusty main universe" > /etc/apt/sources.list
 RUN apt-get update
 
+#Install non-language related packages
+RUN apt-get install -y bc
+RUN apt-get install -y wget
+
 #Install all the languages/compilers we are supporting.
 
 RUN apt-get install -y python
@@ -27,5 +31,6 @@ RUN \
   rm -rf /var/lib/apt/lists/* && \
   rm -rf /var/cache/oracle-jdk8-installer
 
-RUN apt-get update
-RUN apt-get install -y bc
+#grab JUnit
+RUN wget http://search.maven.org/remotecontent?filepath=junit/junit/4.12/junit-4.12.jar -O /usr/share/java/junit.jar
+RUN wget http://search.maven.org/remotecontent?filepath=org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar -O /usr/share/java/hamcrest-core.jar
