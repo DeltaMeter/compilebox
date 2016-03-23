@@ -20,9 +20,9 @@ exports.compilerInfo = [
 	{
 		langID: 0, 
 		language: 'Java',
-		compiler: '"javac -cp /usr/share/java/junit.jar:."', 
+		compiler: '"javac -cp /usr/share/java/*:."', 
 		compileTarget: '*.java', 
-		runTarget: '"java -cp /usercode/:/usr/share/java/junit.jar Main"',
+		runTarget: '"java -cp /usercode/:/usr/share/java/* Main"',
 		runtimeArgs: ''
 	},
 	{
