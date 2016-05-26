@@ -40,7 +40,7 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
 
     //TODO: make the runtarget an array of test files
-    this.runTarget = Object.keys(tests)[0];
+    this.runTarget = compileInfo[language].runTarget.replace('{filename}', Object.keys(tests)[0]);
 }
 
 
@@ -89,14 +89,14 @@ DockerSandbox.prototype.prepare = function(success)
         var combinedCode = {};
 
         for (var filename in sandbox.code){
-            if (object.hasOwnProperty(filename)) {
-                combinedCode[filename] = sandbox.code[property];
+            if (sandbox.code.hasOwnProperty(filename)) {
+                combinedCode[filename] = sandbox.code[filename];
             }
         }
 
         for (var filename in sandbox.tests){
-            if (object.hasOwnProperty(filename)) {
-                combinedCode[filename] = sandbox.tests[property].code;
+            if (sandbox.tests.hasOwnProperty(filename)) {
+                combinedCode[filename] = sandbox.tests[filename].code;
             }
         }
 

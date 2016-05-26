@@ -22,7 +22,7 @@ exports.compilerInfo = [
 		language: 'Java',
 		compiler: '"javac -cp /usr/share/java/*:."', 
 		compileTarget: '*.java', 
-		runTarget: '"java -cp /usercode/:/usr/share/java/* Main"',
+		runTarget: '"java -cp /usercode/:/usr/share/java/* {filename}"',
 		runtimeArgs: ''
 	},
 	{
