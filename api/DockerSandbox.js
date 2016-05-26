@@ -23,7 +23,7 @@
 
 var compilerInfo = require('./compilers').compilerInfo;
 
-var DockerSandbox = function(timeout_value, path, folder, vm_name, language, code, stdin_data)
+var DockerSandbox = function(timeout_value, path, folder, vm_name, language, code, tests, stdin_data)
 {
 
     this.timeout_value=timeout_value;
@@ -31,13 +31,16 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.folder=folder;
     this.vm_name=vm_name;
     this.code = code;
+    this.tests = tests;
     this.stdin_data=stdin_data;
 
     this.compiler = compilerInfo[language].compiler;
     this.compileTarget = compilerInfo[language].compileTarget;
-    this.runTarget = compilerInfo[language].runTarget;
     this.langName = compilerInfo[language].language;
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
+
+    //TODO: make the runtarget an array of test files
+    this.runTarget = Object.keys(tests)[0];
 }
 
 
@@ -79,15 +82,30 @@ DockerSandbox.prototype.prepare = function(success)
     console.log('Make Directory \n' + "mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder)
 
     exec("mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder, function(st){
+        //get the file extension to make the files
+        const fileExt = sandbox.compileTarget.substring(sandbox.compileTarget.indexOf('.'), sandbox.compileTarget.length);
+
+        //combine the tests and normal code into one object so we can iterate through them to make all the files
+        var combinedCode = {};
+
+        for (var filename in sandbox.code){
+            if (object.hasOwnProperty(filename)) {
+                combinedCode[filename] = sandbox.code[property];
+            }
+        }
+
+        for (var filename in sandbox.tests){
+            if (object.hasOwnProperty(filename)) {
+                combinedCode[filename] = sandbox.tests[property].code;
+            }
+        }
 
         //Make a file for each class/piece of code
-        async.each(Object.keys(sandbox.code), function(file, callback){
+        async.each(Object.keys(combinedCode), function(filename, callback){
             //get the file extension to make the file
-            var fileExt = sandbox.compileTarget.substring(sandbox.compileTarget.indexOf('.'), sandbox.compileTarget.length);
-
-            fs.writeFile(sandbox.path + sandbox.folder+"/" + file + fileExt, sandbox.code[file], function(err){
-                console.log(file + fileExt);
-                console.log(sandbox.code[file])
+            
+            fs.writeFile(sandbox.path + sandbox.folder+"/" + filename + fileExt, combinedCode[filename], function(err){
+                console.log(filename + fileExt);
                 callback(err);
             });
         }, function(err){
@@ -97,7 +115,7 @@ DockerSandbox.prototype.prepare = function(success)
             }    
             else
             {
-                exec("chmod 777 \'"+sandbox.path+sandbox.folder+"/"+sandbox.compileTarget+"\'")
+                exec("chmod 777 \'" + sandbox.path + sandbox.folder+ "/" + sandbox.compileTarget+ "\'")
 
                 fs.writeFile(sandbox.path + sandbox.folder+"/inputFile", sandbox.stdin_data, function(err) 
                 {
@@ -140,18 +158,20 @@ DockerSandbox.prototype.execute = function(success){
     var sandbox = this;
 
     //this statement is what is executed
-    var st = this.path+'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name + ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget+ ' ' + this.runtimeArgs;
+    var st = this.path+'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name + ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
     
     //log the statement in console
     console.log('Docker Run \n' +st);
 
     //execute the Docker, This is done ASYNCHRONOUSLY
     exec(st, function(err, stdout){
-	console.log("STDOUT");
-	console.log(stdout);
+    	console.log("STDOUT");
+    	console.log(stdout);
 	});
+
     console.log("------------------------------")
     //Check For File named "completed" after every 1 second
+
     var intid = setInterval(function() {
         //Displaying the checking message after 1 second interval, testing purposes only
         //console.log("Checking " + sandbox.path+sandbox.folder + ": for completion: " + myC);

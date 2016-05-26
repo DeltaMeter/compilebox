@@ -21,8 +21,9 @@ app.post('/compile', function(req, res) {
  
     var language = req.body.language;
     var code = req.body.code;
+    var tests = req.body.tests;
     var stdin = req.body.stdin;
-   
+
     //details of this are present in DockerSandbox.js
     var sandboxType = new sandBox(
         timeout_value,
