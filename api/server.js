@@ -32,6 +32,7 @@ app.post('/compile', function(req, res) {
         vm_name,
         language,
         code,
+        tests,
         stdin
     );
 
