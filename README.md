@@ -1,4 +1,4 @@
- ## Objectives of Fork ##
-	Create a separate docker instance for Java only.
-	Use Java's built in security manager to continually run this docker instance.
-	Destroy and restart instance if it becomes compromised. 
+Changes:
+	ability to run multiple tests
+	ability to test multiple source files
+	small cleanups to the code
