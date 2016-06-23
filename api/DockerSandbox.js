@@ -40,7 +40,7 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
 
     //TODO: make the runtarget an array of test files
-    this.runTarget = compileInfo[language].runTarget.replace('{filename}', Object.keys(tests)[0]);
+    this.runTarget = compilerInfo[language].runTarget.replace('{filename}', Object.keys(tests)[0]);
 }
 
 
