@@ -22,15 +22,13 @@ exports.compilerInfo = [
 		language: 'Java',
 		compiler: '"javac -cp /usr/share/java/*:."', 
 		compileTarget: '*.java', 
-		runTarget: '"java -cp /usercode/:/usr/share/java/* {filename}"',
 		runtimeArgs: ''
 	},
 	{
 		langID: 1,
 		language: 'Python',
-		compiler: 'python',
-		compileTarget: 'file.py',
-		runTarget: '',
+		compiler: '',
+		compileTarget: '',
 		runtimeArgs: ''
 	}
 ];
