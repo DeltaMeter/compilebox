@@ -22,6 +22,7 @@ exports.compilerInfo = [
 		language: 'Java',
 		compiler: '"javac -cp /usr/share/java/*:."', 
 		compileTarget: '*.java', 
+		interpreter: '"java -cp /usercode/:/usr/share/java/*"',
 		runtimeArgs: ''
 	},
 	{
@@ -29,6 +30,7 @@ exports.compilerInfo = [
 		language: 'Python',
 		compiler: '',
 		compileTarget: '',
+		interpreter: '"python"',
 		runtimeArgs: ''
 	}
 ];

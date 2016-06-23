@@ -39,8 +39,8 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.langName = compilerInfo[language].language;
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
 
-    //TODO: make the runtarget an array of test files
-    this.runTarget = compilerInfo[language].runTarget.replace('{filename}', Object.keys(tests)[0]);
+    this.interpreter = compilerInfo[language].interpreter;
+    this.runTarget = tests.toString().replace(/,/g, ' ');
 }
 
 
@@ -78,7 +78,6 @@ DockerSandbox.prototype.prepare = function(success)
     var async = require('async');
     var sandbox = this;
 
-    //Edit this to do it once for every file
     console.log('Make Directory \n' + "mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder)
 
     exec("mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder, function(st){
@@ -158,13 +157,26 @@ DockerSandbox.prototype.execute = function(success){
     var sandbox = this;
 
     //this statement is what is executed
-    var st = this.path+'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name + ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
+    var st = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name +
+     ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
     
+    var baseSt = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name 
+    + '"python /usercode/payload.py"' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
+
+    if (this.compiler){
+        baseSt += '-c ' + this.compiler;
+        baseSt += '-t ' + this.compileTarget;
+    }
+
+    baseSt += '-i ' + this.interpreter;
+
+    baseSt += ' ' + this.runTarget;
+
     //log the statement in console
-    console.log('Docker Run \n' +st);
+    console.log('Docker Run \n' + baseSt);
 
     //execute the Docker, This is done ASYNCHRONOUSLY
-    exec(st, function(err, stdout){
+    exec(baseSt, function(err, stdout){
     	console.log("STDOUT");
     	console.log(stdout);
 	});
@@ -178,66 +190,36 @@ DockerSandbox.prototype.execute = function(success){
 
         myC = myC + (checkTime / 1000);
 		
-        fs.readFile(sandbox.path + sandbox.folder + '/completed', 'utf8', function(err, data) {
+        fs.readFile(sandbox.path + sandbox.folder + '/results/failed.txt', 'utf8', function(err, failedTests) {
             
             //if file is not available yet and the file interval is not yet up carry on
             if (err && myC < sandbox.timeout_value) 
             {
-                //console.log(err);
                 return;
             } 
             //if file is found simply display a message and proceed
-            else if (myC < sandbox.timeout_value) 
-            {
+            else if (myC < sandbox.timeout_value){
                 console.log("DONE")
                 //check for possible errors
-                fs.readFile(sandbox.path + sandbox.folder + '/errors', 'utf8', function(err2, data2) 
+                fs.readFile(sandbox.path + sandbox.folder + '/results/passed.txt', 'utf8', function(err, passedTests) 
                 {
-
-                	if(!data2) data2=""
-               		console.log("Error file: ")
-               		console.log(data2)
-
-               		console.log("Main File")
-               		console.log(data)
-
-        			var lines = data.toString().split('*-COMPILEBOX::ENDOFOUTPUT-*')
-        			data=lines[0]
-        			var time=lines[1]
-
-        			console.log("Time: ")
-        			console.log(time)
-
-
-       	           	success(data,time,data2)
-                });
-
-                //return the data to the calling functoin
-            	
-            } 
-            //if time is up. Save an error message to the data variable
-            else 
-            {
-            	//Since the time is up, we take the partial output and return it.
-            	fs.readFile(sandbox.path + sandbox.folder + '/logfile.txt', 'utf8', function(err, data){
-            		if (!data) data = "";
-                    data += "\nExecution Timed Out";
-                    console.log("Timed Out: "+sandbox.folder+" "+sandbox.langName)
-                    fs.readFile(sandbox.path + sandbox.folder + '/errors', 'utf8', function(err2, data2) 
+                    fs.readFile(sandbox.path + sandbox.folder + '/results/errors.txt', 'utf8', function(err, errors) 
                     {
-                    	if(!data2) data2=""
+                   		console.log("Error file: ")
+                   		console.log(data2)
 
-    			var lines = data.toString().split('*---*')
-    			data=lines[0]
-    			var time=lines[1]
+                   		console.log("Passed")
+                   		console.log(passedTests)
+                        console.log("Failed")
+                        console.log(failedTests)
 
-    			console.log("Time: ")
-    			console.log(time)
-
-                       	success(data,data2)
+           	           	success(errors, passedTests, failedTests)
                     });
-            	});
-                
+                });
+            }else{
+                //if time is up. Save an error message to the data variable
+                console.log('Execution timed out')
+                success('Execution timed out.', null, null)
             }
 
             //now remove the temporary directory
