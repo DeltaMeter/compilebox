@@ -40,7 +40,10 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
 
     this.interpreter = compilerInfo[language].interpreter;
-    this.runTarget = tests.toString().replace(/,/g, ' ');
+    this.runTarget = tests.map(function(test){ return test.name }).toString().replace(/,/g, ' ');
+	console.log('_____________________________')
+	console.log(tests)
+	console.log(this.runTarget)
 }
 
 
@@ -85,8 +88,9 @@ DockerSandbox.prototype.prepare = function(success)
         const fileExt = sandbox.compileTarget.substring(sandbox.compileTarget.indexOf('.'), sandbox.compileTarget.length);
 
         //combine the tests and normal code into one object so we can iterate through them to make all the files
-        var combinedCode = {};
+        var combinedCode = sandbox.code.concat(sandbox.tests);
 
+	/*
         for (var filename in sandbox.code){
             if (sandbox.code.hasOwnProperty(filename)) {
                 combinedCode[filename] = sandbox.code[filename];
@@ -97,14 +101,14 @@ DockerSandbox.prototype.prepare = function(success)
             if (sandbox.tests.hasOwnProperty(filename)) {
                 combinedCode[filename] = sandbox.tests[filename].code;
             }
-        }
+        }*/
 
         //Make a file for each class/piece of code
-        async.each(Object.keys(combinedCode), function(filename, callback){
+        async.each(combinedCode, function(file, callback){
             //get the file extension to make the file
             
-            fs.writeFile(sandbox.path + sandbox.folder+"/" + filename + fileExt, combinedCode[filename], function(err){
-                console.log(filename + fileExt);
+            fs.writeFile(sandbox.path + sandbox.folder+ "/" + file.name + fileExt, file.code, function(err){
+                console.log(file.name + fileExt);
                 callback(err);
             });
         }, function(err){
@@ -160,15 +164,14 @@ DockerSandbox.prototype.execute = function(success){
     var st = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name +
      ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
     
-    var baseSt = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name 
-    + '"python /usercode/payload.py"' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
+    var baseSt = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode -w /usercode ' + this.vm_name + ' python runner.py';
 
     if (this.compiler){
-        baseSt += '-c ' + this.compiler;
-        baseSt += '-t ' + this.compileTarget;
+        baseSt += ' -c ' + this.compiler;
+        baseSt += ' -t ' + this.compileTarget;
     }
 
-    baseSt += '-i ' + this.interpreter;
+    baseSt += ' -i ' + this.interpreter;
 
     baseSt += ' ' + this.runTarget;
 
@@ -189,6 +192,7 @@ DockerSandbox.prototype.execute = function(success){
         //console.log("Checking " + sandbox.path+sandbox.folder + ": for completion: " + myC);
 
         myC = myC + (checkTime / 1000);
+//	console.log(fs.readdirSync(sandbox.path + sandbox.folder));
 		
         fs.readFile(sandbox.path + sandbox.folder + '/results/failed.txt', 'utf8', function(err, failedTests) {
             

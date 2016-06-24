@@ -4,6 +4,7 @@ import os
 from multiprocessing import Pool
 from optparse import OptionParser
 
+
 if not os.path.exists('results'):
         os.makedirs('results')
 
@@ -12,6 +13,7 @@ errors = open('results/errors.txt', 'w')
 interpreter = ''
 
 def shellExec(filename):
+	print filename
         testResult = subprocess.call([interpreter, filename], stdout=subprocess.PIPE, stderr=errors)
         if testResult == 0:
                 return filename
@@ -19,9 +21,19 @@ def shellExec(filename):
 
 def runPrograms(files, options):
         if options.compiler:
-                compileResult = subprocess.call([options.compiler, options.compileTargets], stdout=subprocess.PIPE, stderr=errors)
-                if compileResult != 0:
-                        errors.close()
+		print options.compiler
+		print options.compileTargets
+		print os.listdir('/usr/share/java')
+		
+		print os.listdir(os.path.dirname(os.path.realpath(__file__)))                
+		print os.getcwd()
+		print os.path.dirname(os.path.realpath(__file__))	
+		test = subprocess.check_output(['ls'])
+		print test
+		compileResult = subprocess.call([options.compiler, options.compileTargets], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+		print compileResult
+		if compileResult != 0:
+                	errors.close()
                         sys.exit(1)
 
         testPool = Pool(processes=8)
@@ -52,7 +64,8 @@ if __name__ == "__main__":
         optParser.add_option('-i', '--interpreter', dest='interpreter', help='interpreter, i.e. java')
 
         (options, args) = optParser.parse_args()
-        
+	print options
+	print args        
         interpreter = options.interpreter
         
         runPrograms(args, options)

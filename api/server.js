@@ -18,7 +18,8 @@ app.post('/compile', function(req, res) {
     const path = __dirname+"/"; //current working path
     const vm_name = 'grading_machine'; //name of virtual machine that we want to execute
     const timeout_value = 8;//Timeout Value, In Seconds
- 
+
+	console.log(req.body.tests) 
     var language = req.body.language;
     var code = req.body.code;
     var tests = req.body.tests;
