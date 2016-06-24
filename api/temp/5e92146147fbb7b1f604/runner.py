@@ -14,7 +14,7 @@ interpreter = ''
 
 def shellExec(filename):
 	print filename
-        testResult = subprocess.call([interpreter + " " + filename], stdout=subprocess.PIPE, stderr=errors, shell=True)
+        testResult = subprocess.call([interpreter, filename], stdout=subprocess.PIPE, stderr=errors)
         if testResult == 0:
                 return filename
         return ""

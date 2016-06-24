@@ -210,7 +210,7 @@ DockerSandbox.prototype.execute = function(success){
                     fs.readFile(sandbox.path + sandbox.folder + '/results/errors.txt', 'utf8', function(err, errors) 
                     {
                    		console.log("Error file: ")
-                   		console.log(data2)
+                   		console.log(errors)
 
                    		console.log("Passed")
                    		console.log(passedTests)

@@ -1,0 +1,1 @@
+public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } }
