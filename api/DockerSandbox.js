@@ -22,6 +22,7 @@
 */
 
 var compilerInfo = require('./compilers').compilerInfo;
+var async = require('async');
 
 var DockerSandbox = function(timeout_value, path, folder, vm_name, language, code, tests, stdin_data)
 {
@@ -188,13 +189,9 @@ DockerSandbox.prototype.execute = function(success){
     //Check For File named "completed" after every 1 second
 
     var intid = setInterval(function() {
-        //Displaying the checking message after 1 second interval, testing purposes only
-        //console.log("Checking " + sandbox.path+sandbox.folder + ": for completion: " + myC);
-
         myC = myC + (checkTime / 1000);
-//	console.log(fs.readdirSync(sandbox.path + sandbox.folder));
 		
-        fs.readFile(sandbox.path + sandbox.folder + '/results/failed.txt', 'utf8', function(err, failedTests) {
+        fs.readFile(sandbox.path + sandbox.folder + '/results/completed', 'utf8', function(err, completed) {
             
             //if file is not available yet and the file interval is not yet up carry on
             if (err && myC < sandbox.timeout_value) 
@@ -204,22 +201,28 @@ DockerSandbox.prototype.execute = function(success){
             //if file is found simply display a message and proceed
             else if (myC < sandbox.timeout_value){
                 console.log("DONE")
-                //check for possible errors
-                fs.readFile(sandbox.path + sandbox.folder + '/results/passed.txt', 'utf8', function(err, passedTests) 
-                {
-                    fs.readFile(sandbox.path + sandbox.folder + '/results/errors.txt', 'utf8', function(err, errors) 
-                    {
-                   		console.log("Error file: ")
-                   		console.log(errors)
+                //get the results
 
-                   		console.log("Passed")
-                   		console.log(passedTests)
-                        console.log("Failed")
-                        console.log(failedTests)
+                function reader(path, cb){
+                    fs.readFile(sandbox.path + sandbox.folder + path, 'utf8', function(err, results){
+                        cb(err, results);
+                    }); 
+                }
 
-           	           	success(errors, passedTests, failedTests)
-                    });
-                });
+                async.parallel({
+                    errors: function(cb){
+                        reader('/results/errors.txt', cb);
+                    },
+                    passedTests: function(cb){
+                        reader('/results/passed.txt', cb);
+                    },
+                    failedTests: function(cb){
+                        reader('/results/failed.txt', cb);
+                    }
+                }, function(errs, results){
+                    success(results.errors, results.passedTests, results.failedTests);
+                })
+
             }else{
                 //if time is up. Save an error message to the data variable
                 console.log('Execution timed out')
@@ -229,7 +232,7 @@ DockerSandbox.prototype.execute = function(success){
             //now remove the temporary directory
             console.log("ATTEMPTING TO REMOVE: " + sandbox.folder);
             console.log("------------------------------")
-            exec("rm -r " + sandbox.folder);
+            exec("rm -rf " + sandbox.folder);
             
             clearInterval(intid);
         });

@@ -20,42 +20,34 @@ def shellExec(filename):
         return ""
 
 def runPrograms(files, options):
+        #interpreted languages are already 'compiled', 
+        compileResult = 0
         if options.compiler:
-		print options.compiler
-		print options.compileTargets
-		print os.listdir('/usr/share/java')
-		
-		print os.listdir(os.path.dirname(os.path.realpath(__file__)))                
-		print os.getcwd()
-		print os.path.dirname(os.path.realpath(__file__))	
-		test = subprocess.check_output(['ls'])
-		print test
 		compileResult = subprocess.call(options.compiler + ' ' +  options.compileTargets, stdout=subprocess.PIPE, stderr=errors, shell=True)
-		print compileResult
-		if compileResult != 0:
-                	errors.close()
-                        sys.exit(1)
+		print "Compile Result:" + compileResult
 
-        testPool = Pool(processes=8)
-     
-        tests = testPool.map_async(shellExec, files)
+        #compilation was successful or unnecessary, so now we run the code
+        if compileResults == 0:
+                testPool = Pool(processes=8)
+             
+                tests = testPool.map_async(shellExec, files)
+
+                passedTests = filter((lambda x: x != ""), tests.get(timeout=1))
+                failedTests = filter((lambda x: x not in passedTests), files)
+
+                print "Passed " + ' '.join(passedTests)
+                print "Failed " + ' '.join(failedTests)
+
+                passedResults = open('results/passed.txt', 'w')
+                passedResults.write(' '.join(passedTests))
+                passedResults.close()
+
+                failedResults = open('results/failed.txt', 'w')
+                failedResults.write(' '.join(failedTests))
+                failedResults.close()
 
         errors.close()
-
-        passedTests = filter((lambda x: x != ""), tests.get(timeout=1))
-        failedTests = filter((lambda x: x not in passedTests), files)
-
-        print "Passed " + ' '.join(passedTests)
-        print "Failed " + ' '.join(failedTests)
-
-        passedResults = open('results/passed.txt', 'w')
-        passedResults.write(' '.join(passedTests))
-        passedResults.close()
-
-        failedResults = open('results/failed.txt', 'w')
-        failedResults.write(' '.join(failedTests))
-        failedResults.close()
-
+        open('results/completed', 'w').close()
 
 if __name__ == "__main__":
         optParser = OptionParser()
