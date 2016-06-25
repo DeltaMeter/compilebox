@@ -24,10 +24,10 @@ def runPrograms(files, options):
         compileResult = 0
         if options.compiler:
 		compileResult = subprocess.call(options.compiler + ' ' +  options.compileTargets, stdout=subprocess.PIPE, stderr=errors, shell=True)
-		print "Compile Result: %s" % compileResult
+		print "Compile Result:" + compileResult
 
         #compilation was successful or unnecessary, so now we run the code
-        if compileResult == 0:
+        if compileResults == 0:
                 testPool = Pool(processes=8)
              
                 tests = testPool.map_async(shellExec, files)

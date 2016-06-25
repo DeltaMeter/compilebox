@@ -203,23 +203,23 @@ DockerSandbox.prototype.execute = function(success){
                 console.log("DONE")
                 //get the results
 
-                function reader(path, cb){
-                    fs.readFile(sandbox.path + sandbox.folder + path, 'utf8', function(err, results){
-                        cb(err, results);
-                    }); 
+                function reader(path){
+			return function(cb){                  		
+				fs.readFile(sandbox.path + sandbox.folder + path, 'utf8', function(err, results){
+		if (err) results = '';                	
+    	
+			cb(null, results);
+                    		}); 
+			}
                 }
 
                 async.parallel({
-                    errors: function(cb){
-                        reader('/results/errors.txt', cb);
-                    },
-                    passedTests: function(cb){
-                        reader('/results/passed.txt', cb);
-                    },
-                    failedTests: function(cb){
-                        reader('/results/failed.txt', cb);
-                    }
+                    errors: reader('/results/errors.txt'),
+                    passedTests: reader('/results/passed.txt'),
+                    failedTests: reader('/results/failed.txt')
                 }, function(errs, results){
+			console.log(errs)
+		    console.log(results)
                     success(results.errors, results.passedTests, results.failedTests);
                 })
 

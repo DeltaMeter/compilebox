@@ -27,7 +27,7 @@ def runPrograms(files, options):
 		print "Compile Result: %s" % compileResult
 
         #compilation was successful or unnecessary, so now we run the code
-        if compileResult == 0:
+        if compileResults == 0:
                 testPool = Pool(processes=8)
              
                 tests = testPool.map_async(shellExec, files)
