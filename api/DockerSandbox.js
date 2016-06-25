@@ -204,13 +204,13 @@ DockerSandbox.prototype.execute = function(success){
                 //get the results
 
                 function reader(path){
-			return function(cb){                  		
-				fs.readFile(sandbox.path + sandbox.folder + path, 'utf8', function(err, results){
-		if (err) results = '';                	
+                    return function(cb){                  		
+                        fs.readFile(sandbox.path + sandbox.folder + path, 'utf8', function(err, results){
+                            if (err) results = '';                	
     	
-			cb(null, results);
-                    		}); 
-			}
+                            cb(null, results);
+                        }); 
+                    }
                 }
 
                 async.parallel({
@@ -218,8 +218,6 @@ DockerSandbox.prototype.execute = function(success){
                     passedTests: reader('/results/passed.txt'),
                     failedTests: reader('/results/failed.txt')
                 }, function(errs, results){
-			console.log(errs)
-		    console.log(results)
                     success(results.errors, results.passedTests, results.failedTests);
                 })
 

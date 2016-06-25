@@ -56,8 +56,7 @@ if __name__ == "__main__":
         optParser.add_option('-i', '--interpreter', dest='interpreter', help='interpreter, i.e. java')
 
         (options, args) = optParser.parse_args()
-	print options
-	print args        
+   
         interpreter = options.interpreter
         
         runPrograms(args, options)
