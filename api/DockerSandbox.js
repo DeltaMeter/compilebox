@@ -42,9 +42,6 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
 
     this.interpreter = compilerInfo[language].interpreter;
     this.runTarget = tests.map(function(test){ return test.name }).toString().replace(/,/g, ' ');
-	console.log('_____________________________')
-	console.log(tests)
-	console.log(this.runTarget)
 }
 
 
@@ -109,7 +106,6 @@ DockerSandbox.prototype.prepare = function(success)
             //get the file extension to make the file
             
             fs.writeFile(sandbox.path + sandbox.folder+ "/" + file.name + fileExt, file.code, function(err){
-                console.log(file.name + fileExt);
                 callback(err);
             });
         }, function(err){
@@ -161,10 +157,6 @@ DockerSandbox.prototype.execute = function(success){
     const checkTime = 250; //milliseconds before you check
     var sandbox = this;
 
-    //this statement is what is executed
-    var st = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode ' + this.vm_name +
-     ' /usercode/script.sh ' + this.compiler + ' ' + this.compileTarget + ' ' + this.runTarget + ' ' + this.runtimeArgs;
-    
     var baseSt = this.path +'DockerTimeout.sh ' + this.timeout_value + 's -i -t -v  "' + this.path + this.folder + '":/usercode -w /usercode ' + this.vm_name + ' python runner.py';
 
     if (this.compiler){
