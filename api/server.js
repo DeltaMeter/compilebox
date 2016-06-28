@@ -41,7 +41,7 @@ app.post('/compile', function(req, res) {
     sandboxType.run(function(err, passedTests, failedTests)
     {
         //console.log("Data: received: "+ data)
-    	return res.send({ passedTests: passedTests, failedTests: failedTests, langid: language, code: code, errors: err });
+    	return res.send({ passedTests: passedTests, failedTests: failedTests, errors: err });
     });
 });
 
