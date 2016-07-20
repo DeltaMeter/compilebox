@@ -41,7 +41,7 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.runtimeArgs = compilerInfo[language].runtimeArgs;
 
     this.interpreter = compilerInfo[language].interpreter;
-    this.runTarget = tests.map(function(test){ return test.name }).toString().replace(/,/g, ' ');
+    this.runTarget = tests.map(function(test){ return test.name.split('.')[0] }).toString().replace(/,/g, ' ');
 }
 
 
@@ -82,30 +82,14 @@ DockerSandbox.prototype.prepare = function(success)
     console.log('Make Directory \n' + "mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder)
 
     exec("mkdir "+ this.path+this.folder + " && cp "+this.path+"/Payload/* "+this.path+this.folder+"&& chmod 777 "+ this.path+this.folder, function(st){
-        //get the file extension to make the files
-        const fileExt = sandbox.compileTarget.substring(sandbox.compileTarget.indexOf('.'), sandbox.compileTarget.length);
-
         //combine the tests and normal code into one object so we can iterate through them to make all the files
         var combinedCode = sandbox.code.concat(sandbox.tests);
-
-	/*
-        for (var filename in sandbox.code){
-            if (sandbox.code.hasOwnProperty(filename)) {
-                combinedCode[filename] = sandbox.code[filename];
-            }
-        }
-
-        for (var filename in sandbox.tests){
-            if (sandbox.tests.hasOwnProperty(filename)) {
-                combinedCode[filename] = sandbox.tests[filename].code;
-            }
-        }*/
 
         //Make a file for each class/piece of code
         async.each(combinedCode, function(file, callback){
             //get the file extension to make the file
             
-            fs.writeFile(sandbox.path + sandbox.folder+ "/" + file.name + fileExt, file.code, function(err){
+            fs.writeFile(sandbox.path + sandbox.folder+ "/" + file.name, file.code, function(err){
                 callback(err);
             });
         }, function(err){
