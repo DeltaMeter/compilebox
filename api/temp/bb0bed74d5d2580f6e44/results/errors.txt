@@ -1,7 +1,0 @@
-Kang.java:1: error: not a statement
-public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ "WE WUZ EGYPTIANS AND SHIET" } }
-                                                                                               ^
-Kang.java:1: error: ';' expected
-public class Kang{ public String speak(){ return "WE WUZ KANGZ"; } public String getHistory(){ "WE WUZ EGYPTIANS AND SHIET" } }
-                                                                                                                           ^
-2 errors
