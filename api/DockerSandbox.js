@@ -206,8 +206,9 @@ DockerSandbox.prototype.execute = function(success){
                 }, function(errs, results){
                     //add the file ext to the end of tests if necessary
                     if (!sandbox.interpretWithFileExt){
+                        
                         function addExt(tests){
-			if (tests === ''){ return '' };
+                            if (tests === ''){ return '' };
                             return tests.split(' ').map(function(testName){ return testName + sandbox.fileExt }).toString().replace(/,/g, ' ');
                         }
 
@@ -216,9 +217,8 @@ DockerSandbox.prototype.execute = function(success){
                     }
 
                     //if it's python, and the end is "OK", it's not an actual error, no clue why they write to stderr
-		    console.log(results.errors.substring(results.errors.length - 3, results.errors.length - 2))
-		console.log(this.langName);
-                    if (sandbox.langName === 'Python2.7' && results.errors.substring(results.errors.length-3, results.errors.length-1) === 'OK'){
+                    if (sandbox.langName === 'Python2.7' 
+                        && results.errors.substring(results.errors.length - 3, results.errors.length - 1) === 'OK'){
                         results.errors = '';
                     }
 
