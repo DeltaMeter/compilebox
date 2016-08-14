@@ -217,7 +217,7 @@ DockerSandbox.prototype.execute = function(success){
                     }
 
                     //if it's python, and the end is "OK", it's not an actual error, no clue why they write to stderr
-                    if (sandbox.langName === 'Python2.7' 
+                    if ((sandbox.langName === 'Python2' || sandbox.langName === 'Python3')
                         && results.errors.substring(results.errors.length - 3, results.errors.length - 1) === 'OK'){
                         results.errors = '';
                     }

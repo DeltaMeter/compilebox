@@ -30,11 +30,21 @@ const compilerInfo = [
 	{
 		langID: 1,
 		fileExt: '.py',
-		language: 'Python2.7',
+		language: 'Python2',
 		compiler: '',
 		compileTarget: '',
 		interpreter: '"python"',
 		interpretWithFileExt: true, //need the .py in python helloworld.py
+		runtimeArgs: ''
+	},
+	{
+		langID: 2,
+		fileExt: '.py',
+		language: 'Python3',
+		compiler: '',
+		compileTarget: '',
+		interpreter: '"python3"',
+		interpretWithFileExt: true,
 		runtimeArgs: ''
 	}
 ];

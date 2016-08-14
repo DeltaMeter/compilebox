@@ -17,6 +17,7 @@ RUN apt-get install -y wget
 #Install all the languages/compilers we are supporting.
 
 RUN apt-get install -y python
+RUN apt-get install -y python3
 
 #prepare for Java download
 RUN apt-get install -y python-software-properties
