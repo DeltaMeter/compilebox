@@ -29,7 +29,7 @@ const compilerInfo = [
 	},
 	{
 		langID: 1,
-		fileExt: '.py'
+		fileExt: '.py',
 		language: 'Python2.7',
 		compiler: '',
 		compileTarget: '',

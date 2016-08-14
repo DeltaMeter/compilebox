@@ -47,7 +47,7 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, langID, code,
 
     this.testNames = tests.map(function(test){ return test.name }).toString().replace(/,/g, ' ');
 
-    if (!this.interpretWithFileExt){
+    if (this.interpretWithFileExt){
         this.runTarget = this.testNames;
     }else{
         this.runTarget = tests.map(function(test){ return test.name.split('.')[0] }).toString().replace(/,/g, ' ');
@@ -205,9 +205,10 @@ DockerSandbox.prototype.execute = function(success){
                     failedTests: reader('/results/failed.txt')
                 }, function(errs, results){
                     //add the file ext to the end of tests if necessary
-                    if (!this.interpretWithFileExt){
+                    if (!sandbox.interpretWithFileExt){
                         function addExt(tests){
-                            return tests.split(' ').map(function(testName){ return testName + this.fileExt }).toString().replace(/,/g, ' ');
+			if (tests === ''){ return '' };
+                            return tests.split(' ').map(function(testName){ return testName + sandbox.fileExt }).toString().replace(/,/g, ' ');
                         }
 
                         results.passedTests = addExt(results.passedTests)
@@ -215,7 +216,9 @@ DockerSandbox.prototype.execute = function(success){
                     }
 
                     //if it's python, and the end is "OK", it's not an actual error, no clue why they write to stderr
-                    if (this.langName === 'Python2.7' && results.errors.substring(results.errors.length-2) === 'OK'){
+		    console.log(results.errors.substring(results.errors.length - 3, results.errors.length - 2))
+		console.log(this.langName);
+                    if (sandbox.langName === 'Python2.7' && results.errors.substring(results.errors.length-3, results.errors.length-1) === 'OK'){
                         results.errors = '';
                     }
 
