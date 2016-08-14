@@ -21,10 +21,10 @@
          * @param {String} runTarget: Used in case of compilers only, to execute the object code, send " " in case of interpretors
 */
 
-var compilerInfo = require('./compilers').compilerInfo;
+var getLangByID = require('./compilers').getLangByID;
 var async = require('async');
 
-var DockerSandbox = function(timeout_value, path, folder, vm_name, language, code, tests, stdin_data)
+var DockerSandbox = function(timeout_value, path, folder, vm_name, langID, code, tests, stdin_data)
 {
 
     this.timeout_value=timeout_value;
@@ -35,15 +35,24 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
     this.tests = tests;
     this.stdin_data=stdin_data;
 
-    this.compiler = compilerInfo[language].compiler;
-    this.compileTarget = compilerInfo[language].compileTarget;
-    this.langName = compilerInfo[language].language;
-    this.runtimeArgs = compilerInfo[language].runtimeArgs;
+    const compilerInfo = getLangByID(langID);
 
-    this.interpreter = compilerInfo[language].interpreter;
-    this.runTarget = tests.map(function(test){ return test.name.split('.')[0] }).toString().replace(/,/g, ' ');
+    this.fileExt = compilerInfo.fileExt;
+    this.compiler = compilerInfo.compiler;
+    this.compileTarget = compilerInfo.compileTarget;
+    this.langName = compilerInfo.language;
+    this.runtimeArgs = compilerInfo.runtimeArgs;
+    this.interpretWithFileExt = compilerInfo.interpretWithFileExt;
+    this.interpreter = compilerInfo.interpreter;
+
+    this.testNames = tests.map(function(test){ return test.name }).toString().replace(/,/g, ' ');
+
+    if (!this.interpretWithFileExt){
+        this.runTarget = this.testNames;
+    }else{
+        this.runTarget = tests.map(function(test){ return test.name.split('.')[0] }).toString().replace(/,/g, ' ');
+    }
 }
-
 
 /**
          * @function
@@ -51,6 +60,7 @@ var DockerSandbox = function(timeout_value, path, folder, vm_name, language, cod
          * @description Function that first prepares the Docker environment and then executes the Docker sandbox 
          * @param {Function pointer} success ?????
 */
+
 DockerSandbox.prototype.run = function(success) 
 {
     var sandbox = this;
@@ -194,6 +204,21 @@ DockerSandbox.prototype.execute = function(success){
                     passedTests: reader('/results/passed.txt'),
                     failedTests: reader('/results/failed.txt')
                 }, function(errs, results){
+                    //add the file ext to the end of tests if necessary
+                    if (!this.interpretWithFileExt){
+                        function addExt(tests){
+                            return tests.split(' ').map(function(testName){ return testName + this.fileExt }).toString().replace(/,/g, ' ');
+                        }
+
+                        results.passedTests = addExt(results.passedTests)
+                        results.failedTests = addExt(results.failedTests)
+                    }
+
+                    //if it's python, and the end is "OK", it's not an actual error, no clue why they write to stderr
+                    if (this.langName === 'Python2.7' && results.errors.substring(results.errors.length-2) === 'OK'){
+                        results.errors = '';
+                    }
+
                     success(results.errors, results.passedTests, results.failedTests);
                 })
 

@@ -16,28 +16,39 @@
 	*Revised on: 30th June 2014 (Added Column number 4 to display the name of languages to console)
 */
 
-exports.compilerInfo = [
+const compilerInfo = [
 	{
 		langID: 0, 
+		fileExt: '.java',
 		language: 'Java',
 		compiler: '"javac -cp /usr/share/java/*:."', 
 		compileTarget: '*.java', 
 		interpreter: '"java -cp /usr/share/java/*:."',
+		interpretWithFileExt: false, //just call java HelloWorld
 		runtimeArgs: ''
 	},
 	{
 		langID: 1,
-		language: 'Python',
+		fileExt: '.py'
+		language: 'Python2.7',
 		compiler: '',
 		compileTarget: '',
 		interpreter: '"python"',
+		interpretWithFileExt: true, //need the .py in python helloworld.py
 		runtimeArgs: ''
 	}
 ];
 
+exports.getLangByID = function(id){
+	return compilerInfo.find(function(compilerInfo){
+		return compilerInfo.langID === id;
+	})
+}
 
 
-/*			 ["ruby","file.rb","","Ruby",""],
+/*			
+			Kept as a reference 
+			 ["ruby","file.rb","","Ruby",""],
 			 ["clojure","file.clj","","Clojure",""],
 			 ["php","file.php","","Php",""],
 			 ["nodejs","file.js","","Nodejs",""],
