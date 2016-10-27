@@ -1,7 +1,7 @@
 # Purpose
 This is a sandbox for testing user defined code. Code and tests are passed in through the API, and a Docker instance is launched. Passed tests, failed tests, and stderr are all returned. This could be used for autograding student's code, holding programming competitions, etc. 
 
-Forked from [compilebox](https://github.com/remoteinterview/compilebox)
+Forked from [compilebox](https://github.com/remoteinterview/compilebox) (installation instructions can be found there)
 
 # Objectives of fork:
 
