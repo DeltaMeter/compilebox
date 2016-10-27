@@ -221,7 +221,10 @@ DockerSandbox.prototype.execute = function(success){
                         && results.errors.substring(results.errors.length - 3, results.errors.length - 1) === 'OK'){
                         results.errors = '';
                     }
-
+                    
+                    //convert from space delimited string to arrays
+                    results.passedTests = results.passedTests.trim().split(' ');
+                    results.failedTests = results.failedTests.trim().split(' ');
                     success(results.errors, results.passedTests, results.failedTests);
                 })
 
